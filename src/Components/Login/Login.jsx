@@ -35,8 +35,8 @@ function LoginPage() {
 
   const handleSubmit = async () => {
     const url = isRegister
-      ? "http://localhost:5001/api/register"
-      : "http://localhost:5001/api/login";
+      ? "https://quiz-app-backend-smoky.vercel.app/api/register"
+      : "https://quiz-app-backend-smoky.vercel.app/api/login";
 
     try {
       const res = await axios.post(url, formData);

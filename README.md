@@ -1,12 +1,55 @@
-# React + Vite
+# 🧠 Quiz App – MERN Stack Based Timed Quiz System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack quiz application built using **React**, **Node.js**, **Express**, and **MongoDB**. It allows admins to create quizzes with duration, and users to attempt quizzes with automatic timer tracking, auto-submit, and downloadable scorecards.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📌 Features
 
-## Expanding the ESLint configuration
+- 🛠 Admin can create quizzes with:
+  - Title
+  - Questions with options
+  - Correct answers
+  - Duration (in minutes)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- 👤 User Side:
+  - JWT-authenticated login
+  - View available quizzes by code
+  - Start quiz only once
+  - Countdown timer starts on start
+  - Auto-submit when time expires
+  - Manual submission support
+  - Prevents re-attempt
+  - Generates downloadable PDF scorecard
+
+- 🧾 Scorecard PDF includes:
+  - Name, email, quiz name
+  - Total score
+  - Question-wise answers with status
+
+---
+
+## 🧰 Tech Stack
+
+### Frontend
+- React (with React Router DOM)
+- Material-UI (MUI)
+- Axios
+- jsPDF + autoTable
+
+### Backend
+- Node.js
+- Express.js
+- MongoDB (Mongoose)
+- JWT (jsonwebtoken)
+- CORS
+
+---
+
+## 🚀 Getting Started
+
+### 1️⃣ Clone the repository
+
+```bash
+git clone https://github.com/your-username/quiz-app.git
+cd quiz-app
