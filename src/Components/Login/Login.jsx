@@ -36,11 +36,11 @@ function LoginPage() {
 
   const handleSubmit = async () => {
     const url = isRegister
-      ? "http://localhost:5001/api/register"
-      : "http://localhost:5001/api/login";
+      ? "api/register"
+      : "api/login";
 
     try {
-      const res = await axios.post(url, formData);
+      const res = await api.post(url, formData);
       if (!isRegister) {
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("role", res.data.role);
