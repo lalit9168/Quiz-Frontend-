@@ -39,6 +39,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import StarIcon from "@mui/icons-material/Star";
+import api from "../api";
 
 function QuizDash() {
   const [quizzes, setQuizzes] = useState([]);
@@ -68,7 +69,7 @@ function QuizDash() {
 
   const fetchQuizzes = async () => {
     try {
-      const res = await axios.get("http://localhost:5001/api/quizzes/all");
+      const res = await api.get("api/quizzes/all");
       setQuizzes(res.data);
     } catch (error) {
       console.error("Error fetching quizzes", error);
@@ -79,7 +80,7 @@ function QuizDash() {
 
   const attemptedQuiz = async () => {
     try {
-      const res = await axios.get("http://localhost:5001/api/quizzes/attempted-quiz");
+      const res = await api.get("api/quizzes/attempted-quiz");
       setAttemptedData(res.data);
     } catch (error) {
       console.error("Error fetching attempted quizzes:", error);
@@ -106,7 +107,7 @@ function QuizDash() {
 
   const fetchAllSubmissions = async () => {
     try {
-      const res = await axios.get("http://localhost:5001/api/quizzes/submissions/all", {
+      const res = await api.get("api/quizzes/submissions/all", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSubmissionsData(res.data);
@@ -119,8 +120,8 @@ function QuizDash() {
 
   const fetchSubmissionsForQuiz = async (quizCode) => {
     try {
-      const res = await axios.get(
-        `http://localhost:5001/api/quizzes/submissions/${quizCode}`,
+      const res = await api.get(
+        `api/quizzes/submissions/${quizCode}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setSingleQuizView({ quizCode, submissions: res.data });
@@ -133,7 +134,7 @@ function QuizDash() {
   const handleDelete = async (quizCode) => {
     if (!window.confirm("Are you sure you want to delete this quiz?")) return;
     try {
-      await axios.delete(`http://localhost:5001/api/quizzes/${quizCode}`, {
+      await api.delete(`api/quizzes/${quizCode}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setQuizzes((prev) => prev.filter((q) => q.quizCode !== quizCode));
@@ -144,8 +145,8 @@ function QuizDash() {
 
   const downloadExcelForQuiz = async (quizCode, quizTitle) => {
     try {
-      const res = await axios.get(
-        `http://localhost:5001/api/quizzes/submissions/${quizCode}`,
+      const res = await api.get(
+        `api/quizzes/submissions/${quizCode}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 

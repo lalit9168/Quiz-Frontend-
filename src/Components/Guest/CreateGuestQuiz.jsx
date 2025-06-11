@@ -1,40 +1,55 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  Box, Typography, TextField, Button, IconButton, Paper, Divider,
-  Accordion, AccordionSummary, AccordionDetails, Tooltip,
-  Fade
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import axios from 'axios';
+  Box,
+  Typography,
+  TextField,
+  Button,
+  IconButton,
+  Paper,
+  Divider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Tooltip,
+  Fade,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import axios from "axios";
+import { Select, MenuItem } from "@mui/material";
+import api from "../api";
 
 function CreateGuestQuiz() {
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [questions, setQuestions] = useState([
-    { questionText: '', options: ['', '', '', ''], correctAnswer: '' }
+    { questionText: "", options: ["", "", "", ""], correctAnswer: "" },
   ]);
   const [quizzes, setQuizzes] = useState([]);
   const [expandedQuizCode, setExpandedQuizCode] = useState(null);
   const [attemptsMap, setAttemptsMap] = useState({});
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
 
   const fetchQuizzes = async () => {
     try {
-      const res = await axios.get('http://localhost:5001/api/guest-quizzes/all');
+      const res = await api.get(
+        "/api/guest-quizzes/all"
+      );
       setQuizzes(res.data);
     } catch {
-      alert('Failed to fetch quizzes');
+      alert("Failed to fetch quizzes");
     }
   };
 
   const fetchAttempts = async (quizCode) => {
     try {
-      const res = await axios.get(`http://localhost:5001/api/guest-quizzes/attempts/${quizCode}`);
-      setAttemptsMap(prev => ({ ...prev, [quizCode]: res.data }));
+      const res = await api.get(
+        `/api/guest-quizzes/attempts/${quizCode}`
+      );
+      setAttemptsMap((prev) => ({ ...prev, [quizCode]: res.data }));
     } catch {
-      alert('Failed to fetch attempts');
+      alert("Failed to fetch attempts");
     }
   };
 
@@ -55,38 +70,85 @@ function CreateGuestQuiz() {
   };
 
   const addQuestion = () => {
-    setQuestions([...questions, {
-      questionText: '',
-      options: ['', '', '', ''],
-      correctAnswer: ''
-    }]);
+    setQuestions([
+      ...questions,
+      {
+        questionText: "",
+        options: ["", "", "", ""],
+        correctAnswer: "",
+      },
+    ]);
   };
 
   const handleSubmit = async () => {
+    // Validate Quiz Title
+    if (!title.trim()) {
+      alert("Quiz title cannot be empty");
+      return;
+    }
+
+    // Validate each question
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+
+      if (!q.questionText.trim()) {
+        alert(`Question ${i + 1} is missing its question text.`);
+        return;
+      }
+
+      if (q.options.some((opt) => !opt.trim())) {
+        alert(
+          `Question ${i + 1} has empty options. Please fill all 4 options.`
+        );
+        return;
+      }
+
+      if (!q.correctAnswer.trim()) {
+        alert(`Question ${i + 1} is missing its correct answer.`);
+        return;
+      }
+
+      if (!q.options.includes(q.correctAnswer.trim())) {
+        alert(
+          `Question ${i + 1}: Correct answer must match one of the options.`
+        );
+        return;
+      }
+    }
+
+    // Proceed if all validations pass
     try {
-      const res = await axios.post('http://localhost:5001/api/guest-quizzes/create', {
-        title,
-        questions,
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.post(
+        "/api/guest-quizzes/create",
+        {
+          title,
+          questions,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       alert(`Guest Quiz Created! Code: ${res.data.quizCode}`);
-      setTitle('');
-      setQuestions([{ questionText: '', options: ['', '', '', ''], correctAnswer: '' }]);
+      setTitle("");
+      setQuestions([
+        { questionText: "", options: ["", "", "", ""], correctAnswer: "" },
+      ]);
       fetchQuizzes();
     } catch (err) {
-      alert(err.response?.data?.message || 'Error creating quiz');
+      alert(err.response?.data?.message || "Error creating quiz");
     }
   };
 
   const handleDelete = async (quizCode) => {
-    if (!window.confirm('Are you sure you want to delete this quiz?')) return;
+    if (!window.confirm("Are you sure you want to delete this quiz?")) return;
     try {
-      await axios.delete(`http://localhost:5001/api/guest-quizzes/delete/${quizCode}`);
+      await api.delete(
+        `/api/guest-quizzes/delete/${quizCode}`
+      );
       fetchQuizzes();
     } catch {
-      alert('Failed to delete quiz');
+      alert("Failed to delete quiz");
     }
   };
 
@@ -102,34 +164,35 @@ function CreateGuestQuiz() {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg,rgb(157, 203, 211) 0%,rgb(219, 218, 220) 100%)',
+        minHeight: "100vh",
+        background:
+          "linear-gradient(135deg,rgb(157, 203, 211) 0%,rgb(219, 218, 220) 100%)",
         py: 5,
         px: 2,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start'
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
       }}
     >
       <Fade in timeout={700}>
         <Paper
           elevation={12}
           sx={{
-            backgroundColor: '#ffffff',
+            backgroundColor: "#ffffff",
             borderRadius: 5,
             p: 4,
             maxWidth: 900,
-            width: '100%',
-            boxShadow: '0 20px 40px rgba(102, 126, 234, 0.3)',
+            width: "100%",
+            boxShadow: "0 20px 40px rgba(102, 126, 234, 0.3)",
           }}
         >
           <Typography
             variant="h4"
             sx={{
               mb: 3,
-              fontWeight: 'bold',
-              color: '#667eea',
-              textAlign: 'center'
+              fontWeight: "bold",
+              color: "#667eea",
+              textAlign: "center",
             }}
           >
             Create Guest Quiz
@@ -158,22 +221,21 @@ function CreateGuestQuiz() {
               sx={{
                 mb: 3,
                 p: 3,
-                backgroundColor: '#f8f9ff',
-                border: '1px solid #e0e4ff',
+                backgroundColor: "#f8f9ff",
+                border: "1px solid #e0e4ff",
               }}
             >
-              <Typography
-                variant="h6"
-                sx={{ color: '#667eea', mb: 2 }}
-              >
+              <Typography variant="h6" sx={{ color: "#667eea", mb: 2 }}>
                 Question {i + 1}
               </Typography>
               <TextField
                 fullWidth
                 label="Question"
                 value={q.questionText}
-                onChange={(e) => handleChange(i, 'questionText', e.target.value)}
-                sx={{ 
+                onChange={(e) =>
+                  handleChange(i, "questionText", e.target.value)
+                }
+                sx={{
                   mb: 2,
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": { borderColor: "#667eea" },
@@ -190,7 +252,7 @@ function CreateGuestQuiz() {
                   label={`Option ${j + 1}`}
                   value={opt}
                   onChange={(e) => handleOptionChange(i, j, e.target.value)}
-                  sx={{ 
+                  sx={{
                     mb: 1,
                     "& .MuiOutlinedInput-root": {
                       "& fieldset": { borderColor: "#667eea" },
@@ -201,12 +263,14 @@ function CreateGuestQuiz() {
                   }}
                 />
               ))}
-              <TextField
+              <Select
                 fullWidth
-                label="Correct Answer"
                 value={q.correctAnswer}
-                onChange={(e) => handleChange(i, 'correctAnswer', e.target.value)}
-                sx={{ 
+                onChange={(e) =>
+                  handleChange(i, "correctAnswer", e.target.value)
+                }
+                displayEmpty
+                sx={{
                   mt: 2,
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": { borderColor: "#667eea" },
@@ -215,7 +279,16 @@ function CreateGuestQuiz() {
                   },
                   "& .MuiInputLabel-root.Mui-focused": { color: "#667eea" },
                 }}
-              />
+              >
+                <MenuItem value="" disabled>
+                  Select Correct Answer
+                </MenuItem>
+                {q.options.map((opt, idx) => (
+                  <MenuItem key={idx} value={opt}>
+                    {opt || `Option ${idx + 1}`}
+                  </MenuItem>
+                ))}
+              </Select>
             </Paper>
           ))}
 
@@ -257,9 +330,9 @@ function CreateGuestQuiz() {
             Submit Quiz
           </Button>
 
-          <Divider sx={{ my: 5, borderColor: '#e0e4ff' }} />
+          <Divider sx={{ my: 5, borderColor: "#e0e4ff" }} />
 
-          <Typography variant="h5" sx={{ mb: 2, color: '#667eea' }}>
+          <Typography variant="h5" sx={{ mb: 2, color: "#667eea" }}>
             Existing Guest Quizzes
           </Typography>
 
@@ -277,8 +350,10 @@ function CreateGuestQuiz() {
                 },
               }}
             >
-              <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#667eea' }} />}>
-                <Typography flexGrow={1} sx={{ color: '#333' }}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon sx={{ color: "#667eea" }} />}
+              >
+                <Typography flexGrow={1} sx={{ color: "#333" }}>
                   {quiz.title} (Code: {quiz.quizCode})
                 </Typography>
                 <Tooltip title="Delete Quiz">
@@ -293,21 +368,31 @@ function CreateGuestQuiz() {
                 </Tooltip>
               </AccordionSummary>
               <AccordionDetails>
-                <Typography variant="subtitle1" gutterBottom sx={{ color: '#333' }}>
+                <Typography
+                  variant="subtitle1"
+                  gutterBottom
+                  sx={{ color: "#333" }}
+                >
                   Total Questions: {quiz.questions.length}
                 </Typography>
 
                 {attemptsMap[quiz.quizCode]?.length > 0 ? (
                   <Box>
-                    <Typography variant="subtitle2" gutterBottom sx={{ color: '#333' }}>Attempts:</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      gutterBottom
+                      sx={{ color: "#333" }}
+                    >
+                      Attempts:
+                    </Typography>
                     {attemptsMap[quiz.quizCode].map((a, idx) => (
-                      <Typography key={idx} sx={{ ml: 2, color: '#666' }}>
+                      <Typography key={idx} sx={{ ml: 2, color: "#666" }}>
                         {idx + 1}. {a.name} - Score: {a.score}
                       </Typography>
                     ))}
                   </Box>
                 ) : (
-                  <Typography sx={{ ml: 2, color: '#999' }}>
+                  <Typography sx={{ ml: 2, color: "#999" }}>
                     No attempts yet.
                   </Typography>
                 )}

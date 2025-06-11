@@ -9,17 +9,20 @@ import {
   Grid,
   Alert,
   Fade,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import api from "../api";
 import { jwtDecode } from "jwt-decode";
 
 function QuizPage() {
   const [title, setTitle] = useState("teste sample");
-  const [duration, setDuration] = useState(60); // One quiz-wide duration
+  const [duration, setDuration] = useState(60);
   const [quizCode, setQuizCode] = useState("");
   const [questions, setQuestions] = useState([
-    { questionText: "this is a question", options: ["option 1", "option 2", "option 3", "option 4"], correctAnswer: "option 1" },
+    { questionText: "", options: ["", "", "", ""], correctAnswer: "" },
   ]);
 
   const handleChange = (index, field, value) => {
@@ -41,52 +44,94 @@ function QuizPage() {
     ]);
   };
 
-
-const handleSubmit = async () => {
-  // Check if all required parameters are present
-  if (!title || !questions || !duration) {
-    alert("Please fill in all required fields.");
-    return; // Stop the function if any parameter is missing
-  }
-
-  try {
-    const token = localStorage.getItem("token");
-
-    // If there's no token, you could also show an alert here
-    if (!token) {
-      alert("You must be logged in to create a quiz.");
+  const deleteQuestion = (index) => {
+    if (questions.length === 1) {
+      alert("At least one question is required.");
       return;
     }
 
-    // Decode the token to extract the user's information (email and role)
-    const decodedToken = jwtDecode(token);
-    const { email, role } = decodedToken; // Assuming the JWT contains 'email' and 'role' fields
+    const updated = questions.filter((_, i) => i !== index);
+    setQuestions(updated);
+  };
 
-    // Proceed with the API request if all parameters are present
-    const res = await api.post(
-      "/quizzes/create",
-      { 
-        title, 
-        questions, 
-        duration,
-        adminEmail: email, // Include the admin's email from the decoded JWT
-        role: role,   // Include the admin's role from the decoded JWT (if necessary)
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  const handleSubmit = async () => {
+    // Check if basic fields are filled
+    if (!title || !questions.length || !duration) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+
+      // Check if question text is empty
+      if (!q.questionText.trim()) {
+        alert(`Question ${i + 1} is missing the question text.`);
+        return;
       }
-    );
 
-    // Assuming the response contains a quizCode
-    setQuizCode(res.data.quizCode);
-  } catch (err) {
-    alert("Failed to create quiz.");
-    console.error(err);
-  }
-};
+      // Check if any option is empty
+      for (let j = 0; j < q.options.length; j++) {
+        if (!q.options[j].trim()) {
+          alert(`Option ${j + 1} for Question ${i + 1} is empty.`);
+          return;
+        }
+      }
 
+      // Check if options are unique
+      const optionSet = new Set(q.options.map((opt) => opt.trim()));
+      if (optionSet.size < q.options.length) {
+        alert(`Options for Question ${i + 1} must be unique.`);
+        return;
+      }
+
+      // Check if correct answer is filled
+      if (!q.correctAnswer.trim()) {
+        alert(`Question ${i + 1} is missing the correct answer.`);
+        return;
+      }
+
+      // Optional: check if correct answer is among options
+      if (!optionSet.has(q.correctAnswer.trim())) {
+        alert(
+          `Correct answer for Question ${i + 1} must match one of the options.`
+        );
+        return;
+      }
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must be logged in to create a quiz.");
+        return;
+      }
+
+      const decodedToken = jwtDecode(token);
+      const { email, role } = decodedToken;
+
+      const res = await api.post(
+        "api/quizzes/create",
+        {
+          title,
+          questions,
+          duration,
+          adminEmail: email,
+          role,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setQuizCode(res.data.quizCode);
+    } catch (err) {
+      alert("Failed to create quiz.");
+      console.error(err);
+    }
+  };
 
   return (
     <Box
@@ -172,9 +217,27 @@ const handleSubmit = async () => {
               border: "1px solid #e2e8f0",
             }}
           >
-            <Typography variant="h6" sx={{ mb: 2, color: "#2d3748" }}>
-              Question {i + 1}
-            </Typography>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mb={2}
+            >
+              <Typography variant="h6" sx={{ color: "#2d3748" }}>
+                Question {i + 1}
+              </Typography>
+              <IconButton
+                onClick={() => deleteQuestion(i)}
+                sx={{
+                  color: "#e53e3e",
+                  "&:hover": {
+                    backgroundColor: "#fed7d7",
+                  },
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Box>
 
             <TextField
               fullWidth
@@ -210,30 +273,40 @@ const handleSubmit = async () => {
                         "&:hover fieldset": { borderColor: "#667eea" },
                         "&.Mui-focused fieldset": { borderColor: "#667eea" },
                       },
-                      "& .MuiInputLabel-root.Mui-focused": { color: "#667eea" },
+                      "& .MuiInputLabel-root.Mui-focused": {
+                        color: "#667eea",
+                      },
                     }}
                   />
                 </Grid>
               ))}
             </Grid>
 
-            <TextField
+            <Select
               fullWidth
-              label="Correct Answer"
-              variant="outlined"
               value={q.correctAnswer}
               onChange={(e) => handleChange(i, "correctAnswer", e.target.value)}
+              displayEmpty
               sx={{
                 mt: 3,
+                backgroundColor: "#ffffff",
                 "& .MuiOutlinedInput-root": {
-                  backgroundColor: "#ffffff",
                   "& fieldset": { borderColor: "#e2e8f0" },
                   "&:hover fieldset": { borderColor: "#667eea" },
                   "&.Mui-focused fieldset": { borderColor: "#667eea" },
                 },
                 "& .MuiInputLabel-root.Mui-focused": { color: "#667eea" },
               }}
-            />
+            >
+              <MenuItem value="" disabled>
+                Select Correct Answer
+              </MenuItem>
+              {q.options.map((opt, idx) => (
+                <MenuItem key={idx} value={opt}>
+                  {opt || `Option ${idx + 1}`}
+                </MenuItem>
+              ))}
+            </Select>
           </Paper>
         ))}
 

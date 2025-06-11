@@ -19,6 +19,7 @@ import {
 
 import CelebrationIcon from '@mui/icons-material/EmojiEvents';
 import QuizIcon from '@mui/icons-material/Quiz';
+import api from "../api";
 
 function GuestAttemptQuiz() {
   const { quizCode } = useParams();
@@ -33,7 +34,7 @@ function GuestAttemptQuiz() {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const res = await axios.get(`http://localhost:5001/api/guest-quizzes/code/${quizCode}`);
+        const res = await api.get(`/api/guest-quizzes/code/${quizCode}`);
         setQuiz(res.data);
       } catch (error) {
         alert('Quiz not found');
@@ -59,7 +60,7 @@ function GuestAttemptQuiz() {
       setScore(points);
 
       try {
-        await axios.post(`http://localhost:5001/api/guest-quizzes/attempt/${quizCode}`, {
+        await api.post(`/api/guest-quizzes/attempt/${quizCode}`, {
           name,
           score: points,
         });

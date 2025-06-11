@@ -1,7 +1,11 @@
 import axios from 'axios';
 
+// const api = axios.create({
+//   baseURL: 'http://localhost:5001/', // backend URL
+// });
+
 const api = axios.create({
-  baseURL: 'http://localhost:5001/api', // backend URL
+  baseURL: 'https://quiz-app-backend-smoky.vercel.app/', // deployed backend URL
 });
 
 api.interceptors.request.use((config) => {

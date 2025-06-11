@@ -14,6 +14,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import StarsIcon from "@mui/icons-material/Stars";
+import api from "../api";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -35,8 +36,8 @@ function LoginPage() {
 
   const handleSubmit = async () => {
     const url = isRegister
-      ? "https://quiz-app-backend-smoky.vercel.app/api/register"
-      : "https://quiz-app-backend-smoky.vercel.app/api/login";
+      ? "http://localhost:5001/api/register"
+      : "http://localhost:5001/api/login";
 
     try {
       const res = await axios.post(url, formData);

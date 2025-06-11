@@ -16,6 +16,7 @@ import Navbar from "../Layout/Navbar";
 import LoginModal from "../Auth/LoginModal";
 import { useNavigate } from "react-router-dom";
 
+
 const Hero = () => {
   const [showModal, setShowModal] = useState(false);
   const [currentStat, setCurrentStat] = useState(0);

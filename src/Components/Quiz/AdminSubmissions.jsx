@@ -17,6 +17,7 @@ import {
 
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import api from "../api";
 
 function AdminSubmissions() {
   const [submissions, setSubmissions] = useState([]);
@@ -27,7 +28,7 @@ function AdminSubmissions() {
   useEffect(() => {
     const fetchSubmissions = async () => {
       try {
-        const res = await axios.get('http://localhost:5001/api/quizzes/submissions/all', {
+        const res = await api.get('/api/quizzes/submissions/all', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setSubmissions(res.data);

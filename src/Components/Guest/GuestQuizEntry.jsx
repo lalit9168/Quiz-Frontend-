@@ -10,6 +10,7 @@ import {
   Fade,
 } from '@mui/material';
 import QuizIcon from '@mui/icons-material/Quiz';
+import api from "../api";
 
 function GuestQuizEntry() {
   const [code, setCode] = useState('');

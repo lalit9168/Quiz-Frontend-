@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import api from "../api";
 
 function AttemptQuiz() {
   const { code } = useParams();
@@ -30,8 +31,8 @@ function AttemptQuiz() {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:5001/api/quizzes/code/${code}`
+        const res = await api.get(
+          `/api/quizzes/code/${code}`
         );
         const quizData = res.data;
         setQuiz(quizData);
@@ -122,7 +123,7 @@ function AttemptQuiz() {
     setScore(points);
 
     try {
-      await axios.post(`http://localhost:5001/api/quizzes/submit/${code}`, {
+      await api.post(`/api/quizzes/submit/${code}`, {
         token,
         score: points,
         selectedAnswers,
@@ -143,8 +144,8 @@ function AttemptQuiz() {
       const { points, selectedAnswers } = calculateScore();
       setScore(points); // Force re-render immediately
 
-      axios
-        .post(`http://localhost:5001/api/quizzes/submit/${code}`, {
+      api
+        .post(`/api/quizzes/submit/${code}`, {
           token,
           score: points,
           selectedAnswers,
