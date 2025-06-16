@@ -13,10 +13,19 @@ import {
   Fab,
   Zoom,
   Container,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   Quiz as QuizIcon,
   KeyboardArrowUp as KeyboardArrowUpIcon,
+  Menu as MenuIcon,
+  Close as CloseIcon,
 } from "@mui/icons-material";
 import "@fontsource/poppins/400.css";
 import "@fontsource/poppins/600.css";
@@ -58,7 +67,10 @@ const Navbar = () => {
   const [showModal, setShowModal] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [hoveredButton, setHoveredButton] = useState(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
 
   // Handle scroll effect for navbar shadow
@@ -72,12 +84,45 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
   const navItems = [
     { name: 'Home', path: '/', action: () => navigate('/') },
     { name: 'Login', path: '/login', action: () => navigate('/login') },
     { name: 'Feedback', path: '/feedback', action: () => navigate('/feedback') },
     { name: 'Contact Us', path: '/contact', action: () => navigate('/contact') },
   ];
+
+  const handleMobileNavClick = (action) => {
+    action();
+    setMobileOpen(false);
+  };
+
+  const drawer = (
+    <Box sx={styles.drawer}>
+      <Box sx={styles.drawerHeader}>
+        <IconButton onClick={handleDrawerToggle} sx={styles.closeButton}>
+          <CloseIcon />
+        </IconButton>
+      </Box>
+      <List sx={styles.drawerList}>
+        {navItems.map((item) => (
+          <ListItem 
+            key={item.name} 
+            onClick={() => handleMobileNavClick(item.action)}
+            sx={styles.drawerListItem}
+          >
+            <ListItemText 
+              primary={item.name} 
+              sx={styles.drawerListItemText}
+            />
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
 
   return (
     <>
@@ -110,31 +155,46 @@ const Navbar = () => {
                 </Box>
               </Box>
 
-              {/* Navigation Links */}
-              <Box sx={styles.linkContainer}>
-                {navItems.map((item, index) => (
-                  <Button
-                    key={item.name}
-                    onClick={item.action}
-                    onMouseEnter={() => setHoveredButton(item.name)}
-                    onMouseLeave={() => setHoveredButton(null)}
-                    sx={{
-                      ...styles.linkButton,
-                      animationDelay: `${index * 0.1}s`,
-                    }}
-                  >
-                    <Typography sx={styles.buttonText}>
-                      {item.name}
-                    </Typography>
-                    <Box 
+              {/* Mobile menu button */}
+              {isMobile && (
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  edge="start"
+                  onClick={handleDrawerToggle}
+                  sx={styles.menuButton}
+                >
+                  <MenuIcon />
+                </IconButton>
+              )}
+
+              {/* Desktop Navigation Links */}
+              {!isMobile && (
+                <Box sx={styles.linkContainer}>
+                  {navItems.map((item, index) => (
+                    <Button
+                      key={item.name}
+                      onClick={item.action}
+                      onMouseEnter={() => setHoveredButton(item.name)}
+                      onMouseLeave={() => setHoveredButton(null)}
                       sx={{
-                        ...styles.hoverUnderline,
-                        width: hoveredButton === item.name ? '100%' : '0%',
-                      }} 
-                    />
-                  </Button>
-                ))}
-              </Box>
+                        ...styles.linkButton,
+                        animationDelay: `${index * 0.1}s`,
+                      }}
+                    >
+                      <Typography sx={styles.buttonText}>
+                        {item.name}
+                      </Typography>
+                      <Box 
+                        sx={{
+                          ...styles.hoverUnderline,
+                          width: hoveredButton === item.name ? '100%' : '0%',
+                        }} 
+                      />
+                    </Button>
+                  ))}
+                </Box>
+              )}
             </Toolbar>
           </Container>
           
@@ -142,6 +202,20 @@ const Navbar = () => {
           <Box sx={styles.gradientLine} />
         </AppBar>
       </Slide>
+
+      {/* Mobile Drawer */}
+      <Drawer
+        variant="temporary"
+        anchor="right"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{
+          keepMounted: true,
+        }}
+        sx={styles.drawerContainer}
+      >
+        {drawer}
+      </Drawer>
 
       {/* Spacer to prevent content overlap */}
       <Box sx={{ height: '85px' }} />
@@ -179,7 +253,7 @@ const styles = {
   logoContainer: {
     display: 'flex',
     alignItems: 'center',
-    gap: 3,
+    gap: { xs: 1.5, sm: 2, md: 3 },
     animation: 'slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
     '@keyframes slideInLeft': {
       '0%': {
@@ -198,8 +272,8 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '56px',
-    height: '56px',
+    width: { xs: '40px', sm: '48px', md: '56px' },
+    height: { xs: '40px', sm: '48px', md: '56px' },
     borderRadius: '16px',
     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     boxShadow: '0 8px 24px rgba(102, 126, 234, 0.35)',
@@ -215,7 +289,7 @@ const styles = {
   },
 
   logoIcon: {
-    fontSize: '28px',
+    fontSize: { xs: '20px', sm: '24px', md: '28px' },
     color: '#ffffff',
     transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
   },
@@ -250,7 +324,7 @@ const styles = {
     color: '#1a202c',
     letterSpacing: "-0.03em",
     lineHeight: 1.1,
-    fontSize: '1.8rem',
+    fontSize: { xs: '1.2rem', sm: '1.5rem', md: '1.8rem' },
     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
@@ -262,15 +336,16 @@ const styles = {
     fontFamily: "Inter, sans-serif",
     color: '#64748b',
     fontWeight: 500,
-    fontSize: '0.8rem',
+    fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' },
     letterSpacing: "0.03em",
     marginTop: '-2px',
     opacity: 0.8,
+    display: { xs: 'none', sm: 'block' },
   },
 
   linkContainer: {
     display: "flex",
-    gap: 2,
+    gap: { md: 1, lg: 2 },
     alignItems: 'center',
     animation: 'slideInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
     '@keyframes slideInRight': {
@@ -289,10 +364,10 @@ const styles = {
     position: 'relative',
     color: "#2d3748",
     fontWeight: 600,
-    fontSize: "1.1rem",
+    fontSize: { md: "1rem", lg: "1.1rem" },
     fontFamily: "Inter, sans-serif",
     letterSpacing: "0.02em",
-    padding: "12px 24px",
+    padding: { md: "10px 16px", lg: "12px 24px" },
     textTransform: "none",
     borderRadius: "12px",
     minWidth: 'auto',
@@ -333,7 +408,7 @@ const styles = {
 
   buttonText: {
     fontWeight: 700,
-    fontSize: '1.1rem',
+    fontSize: { md: '1rem', lg: '1.1rem' },
     fontFamily: 'Poppins, sans-serif',
     letterSpacing: '0.02em',
     textTransform: 'none',
@@ -380,6 +455,69 @@ const styles = {
       background: 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
       transform: 'scale(1.15) translateY(-2px)',
       boxShadow: '0 12px 32px rgba(102, 126, 234, 0.45)',
+    },
+  },
+
+  menuButton: {
+    color: '#2d3748',
+    '&:hover': {
+      backgroundColor: 'rgba(102, 126, 234, 0.08)',
+    },
+  },
+
+  drawerContainer: {
+    '& .MuiDrawer-paper': {
+      width: { xs: '280px', sm: '320px' },
+      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+    },
+  },
+
+  drawer: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+
+  drawerHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    padding: '16px',
+    minHeight: '64px',
+  },
+
+  closeButton: {
+    color: '#2d3748',
+    '&:hover': {
+      backgroundColor: 'rgba(102, 126, 234, 0.08)',
+    },
+  },
+
+  drawerList: {
+    flex: 1,
+    paddingTop: 0,
+  },
+
+  drawerListItem: {
+    cursor: 'pointer',
+    borderRadius: '12px',
+    margin: '8px 16px',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    '&:hover': {
+      backgroundColor: 'rgba(102, 126, 234, 0.08)',
+      transform: 'translateX(8px)',
+    },
+  },
+
+  drawerListItemText: {
+    '& .MuiListItemText-primary': {
+      fontFamily: 'Inter, sans-serif',
+      fontWeight: 600,
+      fontSize: '1.1rem',
+      color: '#2d3748',
+      letterSpacing: '0.02em',
     },
   },
 };
