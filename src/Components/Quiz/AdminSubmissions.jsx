@@ -24,7 +24,7 @@ function AdminSubmissions() {
   const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem("token");
-
+// it will fetch all data of submission it will only accessable to admin only 
   useEffect(() => {
     const fetchSubmissions = async () => {
       try {
@@ -63,6 +63,7 @@ function AdminSubmissions() {
       alert("No submissions to export.");
       return;
     }
+    //Uses XLSX.utils.json_to_sheet() from the xlsx library.this convert the data into excel sheet
 
     const worksheet = XLSX.utils.json_to_sheet(flatData);
     const workbook = XLSX.utils.book_new();

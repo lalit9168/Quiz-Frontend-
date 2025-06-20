@@ -40,7 +40,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import StarIcon from "@mui/icons-material/Star";
 import api from "../api";
-
+//admin
 function QuizDash() {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,13 +60,19 @@ function QuizDash() {
     fetchQuizzes();
     attemptedQuiz();
 
+    if (!token) {
+      alert("You must login to view this page.");
+      navigate("/"); // ⬅ Redirects to home
+      return null; // ⬅ Prevent further rendering
+    }
+
     if (token) {
       const decoded = jwtDecode(token);
       if (decoded.role === "admin") setIsAdmin(true);
       if (decoded.email) setUserEmail(decoded.email);
     }
   }, []);
-
+  // admin level ooperation
   const fetchQuizzes = async () => {
     try {
       const res = await api.get("api/quizzes/all");
@@ -77,7 +83,7 @@ function QuizDash() {
       setLoading(false);
     }
   };
-
+  //for user level
   const attemptedQuiz = async () => {
     try {
       const res = await api.get("api/quizzes/attempted-quiz");
@@ -105,6 +111,7 @@ function QuizDash() {
   //   }
   // };
 
+  // admin to fetch all submissionas
   const fetchAllSubmissions = async () => {
     try {
       const res = await api.get("api/quizzes/submissions/all", {
@@ -117,19 +124,20 @@ function QuizDash() {
       console.error("Failed to fetch submissions", err);
     }
   };
-
+  // admin to view single quiz records
   const fetchSubmissionsForQuiz = async (quizCode) => {
     try {
-      const res = await api.get(
-        `api/quizzes/submissions/${quizCode}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await api.get(`api/quizzes/submissions/${quizCode}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setSingleQuizView({ quizCode, submissions: res.data });
       setShowSubmissions(false);
     } catch (err) {
       console.error("Failed to fetch quiz submissions", err);
     }
   };
+
+  //delete for admin
 
   const handleDelete = async (quizCode) => {
     if (!window.confirm("Are you sure you want to delete this quiz?")) return;
@@ -142,13 +150,12 @@ function QuizDash() {
       console.error("Failed to delete quiz", err);
     }
   };
-
+  //download excel for admin only view all data
   const downloadExcelForQuiz = async (quizCode, quizTitle) => {
     try {
-      const res = await api.get(
-        `api/quizzes/submissions/${quizCode}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await api.get(`api/quizzes/submissions/${quizCode}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       const flatData = res.data.map((sub) => ({
         "Quiz Title": quizTitle,
@@ -170,7 +177,7 @@ function QuizDash() {
       console.error("Error downloading Excel", err);
     }
   };
-
+  // logput function to admin
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
@@ -182,6 +189,7 @@ function QuizDash() {
     return quiz?.attemptedUsers.includes(userEmail);
   };
 
+  // download pdf with this colour
   const getScoreColor = (score, total) => {
     const percentage = (score / total) * 100;
     if (percentage >= 80) return "#4ade80";
@@ -336,10 +344,14 @@ function QuizDash() {
                       <Table>
                         <TableHead>
                           <TableRow sx={{ backgroundColor: "#f8fafc" }}>
-                            <TableCell sx={{ fontWeight: "600", color: "#475569" }}>
+                            <TableCell
+                              sx={{ fontWeight: "600", color: "#475569" }}
+                            >
                               Email
                             </TableCell>
-                            <TableCell sx={{ fontWeight: "600", color: "#475569" }}>
+                            <TableCell
+                              sx={{ fontWeight: "600", color: "#475569" }}
+                            >
                               Score
                             </TableCell>
                           </TableRow>
@@ -349,7 +361,9 @@ function QuizDash() {
                             <TableRow
                               key={i}
                               sx={{
-                                "&:nth-of-type(odd)": { backgroundColor: "#f8fafc" },
+                                "&:nth-of-type(odd)": {
+                                  backgroundColor: "#f8fafc",
+                                },
                                 "&:hover": { backgroundColor: "#e2e8f0" },
                               }}
                             >
@@ -406,10 +420,14 @@ function QuizDash() {
                     <Table>
                       <TableHead>
                         <TableRow sx={{ backgroundColor: "#f8fafc" }}>
-                          <TableCell sx={{ fontWeight: "600", color: "#475569" }}>
+                          <TableCell
+                            sx={{ fontWeight: "600", color: "#475569" }}
+                          >
                             Email
                           </TableCell>
-                          <TableCell sx={{ fontWeight: "600", color: "#475569" }}>
+                          <TableCell
+                            sx={{ fontWeight: "600", color: "#475569" }}
+                          >
                             Score
                           </TableCell>
                         </TableRow>
@@ -419,7 +437,9 @@ function QuizDash() {
                           <TableRow
                             key={i}
                             sx={{
-                              "&:nth-of-type(odd)": { backgroundColor: "#f8fafc" },
+                              "&:nth-of-type(odd)": {
+                                backgroundColor: "#f8fafc",
+                              },
                               "&:hover": { backgroundColor: "#e2e8f0" },
                             }}
                           >
@@ -476,12 +496,15 @@ function QuizDash() {
                           left: 0,
                           right: 0,
                           height: "4px",
-                          background: "linear-gradient(90deg, #667eea, #764ba2)",
+                          background:
+                            "linear-gradient(90deg, #667eea, #764ba2)",
                         },
                       }}
                     >
                       <CardContent sx={{ p: 3 }}>
-                        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", mb: 2 }}
+                        >
                           <Avatar
                             sx={{
                               bgcolor: "rgba(102, 126, 234, 0.1)",
@@ -521,12 +544,19 @@ function QuizDash() {
                         <Box sx={{ mb: 3 }}>
                           <Typography
                             variant="body2"
-                            sx={{ color: "#64748b", display: "flex", alignItems: "center", mb: 1 }}
+                            sx={{
+                              color: "#64748b",
+                              display: "flex",
+                              alignItems: "center",
+                              mb: 1,
+                            }}
                           >
-                            <StarIcon sx={{ fontSize: 16, mr: 1, color: "#f59e0b" }} />
+                            <StarIcon
+                              sx={{ fontSize: 16, mr: 1, color: "#f59e0b" }}
+                            />
                             {quiz.questions?.length || 0} Questions
                           </Typography>
-                          
+
                           {isAttempted(quiz.quizCode) && (
                             <Chip
                               label="Completed"
@@ -546,10 +576,16 @@ function QuizDash() {
                             variant="contained"
                             onClick={() => {
                               if (isAttempted(quiz.quizCode)) {
-                                //fetchUserScore(quiz.quizCode);
-                                navigate(`/attempt/${quiz.quizCode}`)
-                              } else {
+                                // Already attempted — just navigate
                                 navigate(`/attempt/${quiz.quizCode}`);
+                              } else {
+                                // Show confirmation popup before starting
+                                const confirmStart = window.confirm(
+                                  "⚠️ Once you start the quiz, the timer will begin and cannot be stopped.\nDo you want to continue?"
+                                );
+                                if (confirmStart) {
+                                  navigate(`/attempt/${quiz.quizCode}`);
+                                }
                               }
                             }}
                             sx={{
@@ -570,12 +606,20 @@ function QuizDash() {
                               transition: "all 0.2s ease",
                             }}
                           >
-                            {isAttempted(quiz.quizCode) ? "View Score" : "Start Quiz"}
+                            {isAttempted(quiz.quizCode)
+                              ? "View Score"
+                              : "Start Quiz"}
                           </Button>
                         )}
 
                         {isAdmin && (
-                          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 1,
+                            }}
+                          >
                             <Button
                               fullWidth
                               variant="outlined"
@@ -596,7 +640,9 @@ function QuizDash() {
                               fullWidth
                               variant="outlined"
                               startIcon={<VisibilityIcon />}
-                              onClick={() => fetchSubmissionsForQuiz(quiz.quizCode)}
+                              onClick={() =>
+                                fetchSubmissionsForQuiz(quiz.quizCode)
+                              }
                               sx={{
                                 color: "#3b82f6",
                                 borderColor: "#bfdbfe",
@@ -612,7 +658,9 @@ function QuizDash() {
                               fullWidth
                               variant="outlined"
                               startIcon={<DownloadIcon />}
-                              onClick={() => downloadExcelForQuiz(quiz.quizCode, quiz.title)}
+                              onClick={() =>
+                                downloadExcelForQuiz(quiz.quizCode, quiz.title)
+                              }
                               sx={{
                                 color: "#10b981",
                                 borderColor: "#bbf7d0",
@@ -644,7 +692,10 @@ function QuizDash() {
         BackdropComponent={Backdrop}
         BackdropProps={{
           timeout: 500,
-          sx: { backgroundColor: "rgba(0, 0, 0, 0.7)", backdropFilter: "blur(5px)" },
+          sx: {
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            backdropFilter: "blur(5px)",
+          },
         }}
       >
         <Fade in={scoreModalOpen}>
@@ -672,7 +723,8 @@ function QuizDash() {
               {/* Modal Header */}
               <Box
                 sx={{
-                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  background:
+                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                   color: "#fff",
                   p: 3,
                   position: "relative",
@@ -686,12 +738,15 @@ function QuizDash() {
                     right: 8,
                     top: 8,
                     color: "rgba(255,255,255,0.8)",
-                    "&:hover": { color: "#fff", backgroundColor: "rgba(255,255,255,0.1)" },
+                    "&:hover": {
+                      color: "#fff",
+                      backgroundColor: "rgba(255,255,255,0.1)",
+                    },
                   }}
                 >
                   <CloseIcon />
                 </IconButton>
-                
+
                 <Avatar
                   sx={{
                     width: 80,
@@ -704,7 +759,7 @@ function QuizDash() {
                 >
                   <TrophyIcon sx={{ fontSize: 40, color: "#fbbf24" }} />
                 </Avatar>
-                
+
                 <Typography variant="h5" fontWeight="700" gutterBottom>
                   Quiz Results
                 </Typography>
@@ -723,7 +778,14 @@ function QuizDash() {
                         width: 120,
                         height: 120,
                         borderRadius: "50%",
-                        background: `conic-gradient(${getScoreColor(selectedQuizScore.score, selectedQuizScore.totalQuestions)} ${(selectedQuizScore.score / selectedQuizScore.totalQuestions) * 360}deg, #e2e8f0 0deg)`,
+                        background: `conic-gradient(${getScoreColor(
+                          selectedQuizScore.score,
+                          selectedQuizScore.totalQuestions
+                        )} ${
+                          (selectedQuizScore.score /
+                            selectedQuizScore.totalQuestions) *
+                          360
+                        }deg, #e2e8f0 0deg)`,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -749,13 +811,19 @@ function QuizDash() {
                           variant="h4"
                           sx={{
                             fontWeight: "800",
-                            color: getScoreColor(selectedQuizScore.score, selectedQuizScore.totalQuestions),
+                            color: getScoreColor(
+                              selectedQuizScore.score,
+                              selectedQuizScore.totalQuestions
+                            ),
                             lineHeight: 1,
                           }}
                         >
                           {selectedQuizScore.score}
                         </Typography>
-                        <Typography variant="body2" sx={{ color: "#64748b", fontSize: "0.75rem" }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "#64748b", fontSize: "0.75rem" }}
+                        >
                           out of {selectedQuizScore.totalQuestions}
                         </Typography>
                       </Box>
@@ -765,24 +833,45 @@ function QuizDash() {
                       variant="h6"
                       sx={{
                         fontWeight: "700",
-                        color: getScoreColor(selectedQuizScore.score, selectedQuizScore.totalQuestions),
+                        color: getScoreColor(
+                          selectedQuizScore.score,
+                          selectedQuizScore.totalQuestions
+                        ),
                         mb: 1,
                       }}
                     >
-                      {getPerformanceText(selectedQuizScore.score, selectedQuizScore.totalQuestions)}
+                      {getPerformanceText(
+                        selectedQuizScore.score,
+                        selectedQuizScore.totalQuestions
+                      )}
                     </Typography>
-                    
+
                     <Typography variant="body1" sx={{ color: "#64748b" }}>
-                      You scored {Math.round((selectedQuizScore.score / selectedQuizScore.totalQuestions) * 100)}%
+                      You scored{" "}
+                      {Math.round(
+                        (selectedQuizScore.score /
+                          selectedQuizScore.totalQuestions) *
+                          100
+                      )}
+                      %
                     </Typography>
                   </Box>
 
                   <Divider sx={{ my: 3 }} />
 
                   {/* Score Details */}
-                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      mb: 3,
+                    }}
+                  >
                     <Box sx={{ textAlign: "center", flex: 1 }}>
-                      <Typography variant="h5" sx={{ fontWeight: "700", color: "#10b981" }}>
+                      <Typography
+                        variant="h5"
+                        sx={{ fontWeight: "700", color: "#10b981" }}
+                      >
                         {selectedQuizScore.score}
                       </Typography>
                       <Typography variant="body2" sx={{ color: "#64748b" }}>
@@ -790,15 +879,22 @@ function QuizDash() {
                       </Typography>
                     </Box>
                     <Box sx={{ textAlign: "center", flex: 1 }}>
-                      <Typography variant="h5" sx={{ fontWeight: "700", color: "#ef4444" }}>
-                        {selectedQuizScore.totalQuestions - selectedQuizScore.score}
+                      <Typography
+                        variant="h5"
+                        sx={{ fontWeight: "700", color: "#ef4444" }}
+                      >
+                        {selectedQuizScore.totalQuestions -
+                          selectedQuizScore.score}
                       </Typography>
                       <Typography variant="body2" sx={{ color: "#64748b" }}>
                         Incorrect
                       </Typography>
                     </Box>
                     <Box sx={{ textAlign: "center", flex: 1 }}>
-                      <Typography variant="h5" sx={{ fontWeight: "700", color: "#3b82f6" }}>
+                      <Typography
+                        variant="h5"
+                        sx={{ fontWeight: "700", color: "#3b82f6" }}
+                      >
                         {selectedQuizScore.totalQuestions}
                       </Typography>
                       <Typography variant="body2" sx={{ color: "#64748b" }}>

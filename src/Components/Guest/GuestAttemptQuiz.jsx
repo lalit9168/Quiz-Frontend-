@@ -46,10 +46,12 @@ function GuestAttemptQuiz() {
   }, [quizCode]);
 
   const handleAnswer = (e) => {
+    //e.target.value: This is the selected answer by the user.
     setAnswers({ ...answers, [current]: e.target.value });
   };
 
   const handleNext = async () => {
+    //If you haven’t reached the last question yet, go to the next question.
     if (current < quiz.questions.length - 1) {
       setCurrent(current + 1);
     } else {

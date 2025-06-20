@@ -32,11 +32,16 @@ function AttemptQuiz() {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
+        if (!token) {
+        alert("You must Login to attempt the quiz.");
+        return;
+      }
         const res = await api.get(
           `/api/quizzes/code/${code}`
         );
         const quizData = res.data;
         setQuiz(quizData);
+        //token;
 
         const decodedToken = JSON.parse(atob(token.split(".")[1]));
         const userEmail = decodedToken.email;
@@ -44,7 +49,7 @@ function AttemptQuiz() {
         const userSubmission = quizData.submissions?.find(
           (s) => s.email === userEmail
         );
-
+//already attempt logic 
         if (userSubmission) {
           setAlreadyAttempted(true);
           setScore(userSubmission.score);
@@ -59,27 +64,32 @@ function AttemptQuiz() {
         // Normal attempt logic
         const duration = quizData.duration; // minutes
         const startKey = `quizStartTime_${code}`;
+       // Creates a unique key to store start time in localStorage.
         let startTime = localStorage.getItem(startKey);
 
         if (!startTime) {
           startTime = new Date().toISOString();
           localStorage.setItem(startKey, startTime);
+          //Assigns the current time as the start.
         }
 
         const endTime = new Date(
           new Date(startTime).getTime() + duration * 60000
+          //60000 ms = 1 minute
         );
 
         const interval = setInterval(() => {
           const now = new Date();
           const diff = endTime - now;
-
+//Stop the interval.
           if (diff <= 0) {
             clearInterval(interval);
             setTimeLeft(0);
             if (!submittedRef.current) {
               submittedRef.current = true;
               handleAutoSubmit();
+              //Calls handleAutoSubmit() to auto-submit the quiz when time ends.
+              
             }
           } else {
             setTimeLeft(diff);
@@ -95,11 +105,11 @@ function AttemptQuiz() {
     fetchQuiz();
     return () => clearInterval(timerRef.current);
   }, [code, token]);
-
+/// to move another quation logic 
   const handleOptionChange = (e) => {
     setAnswers({ ...answers, [current]: e.target.value });
   };
-
+// calculate score logix
   const calculateScore = () => {
     let points = 0;
     const selectedAnswers = [];
@@ -120,7 +130,7 @@ function AttemptQuiz() {
   };
 
  
-
+// submit quiz logic 
 const submitQuiz = async () => {
   const { points, selectedAnswers } = calculateScore();
   setScore(points);
@@ -172,6 +182,7 @@ const submitQuiz = async () => {
     alert("Failed to send scorecard.");
   }
 };
+// handle test  submit  automatic when time ends
   const handleAutoSubmit = () => {
     if (!submittedRef.current) {
       submittedRef.current = true;
@@ -195,7 +206,7 @@ const submitQuiz = async () => {
         });
     }
   };
-
+//next question  move logic using next button
   const handleNext = () => {
     if (current < quiz.questions.length - 1) {
       setCurrent(current + 1);

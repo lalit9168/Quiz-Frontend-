@@ -24,7 +24,7 @@ function QuizPage() {
   const [questions, setQuestions] = useState([
     { questionText: "", options: ["", "", "", ""], correctAnswer: "" },
   ]);
-
+// question chnag elogic on screen 
   const handleChange = (index, field, value) => {
     const updated = [...questions];
     updated[index][field] = value;

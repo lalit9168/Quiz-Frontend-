@@ -62,13 +62,13 @@ function CreateGuestQuiz() {
     updated[index][field] = value;
     setQuestions(updated);
   };
-
+//a function that handle the change of the option of the quiz
   const handleOptionChange = (qIndex, optIndex, value) => {
     const updated = [...questions];
     updated[qIndex].options[optIndex] = value;
     setQuestions(updated);
   };
-
+//a funaction that add a new question to the quiz
   const addQuestion = () => {
     setQuestions([
       ...questions,
@@ -156,6 +156,9 @@ function CreateGuestQuiz() {
     if (expandedQuizCode === quizCode) {
       setExpandedQuizCode(null);
     } else {
+      //expandedQuizCode: Holds the current quiz code that is expanded.
+
+
       setExpandedQuizCode(quizCode);
       fetchAttempts(quizCode);
     }

@@ -28,6 +28,7 @@ function HomePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    //If the token is not there (user is not logged in), it redirects them to the homepage ("/"), preventing unauthorized access.
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/");

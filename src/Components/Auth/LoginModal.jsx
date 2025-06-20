@@ -26,11 +26,17 @@ function LoginModal({ open, handleClose }) {
 
   const handleSubmit = async () => {
     const url = isRegister
+    // is is register If isRegister is true → user is registering → send data to /api/register.
+   //If isRegister is false → user is logging in → send data to /api/login.
       ? "http://localhost:5001/api/register"
       : "http://localhost:5001/api/login";
 
     try {
       const res = await axios.post(url, formData);
+      //If the user is logging in:
+//Store the received token and role  — used to keep the user logged in.
+
+
       if (!isRegister) {
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("role", res.data.role);

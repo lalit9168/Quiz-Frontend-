@@ -40,8 +40,10 @@ import "@fontsource/montserrat/700.css";
 // Scroll to top component
 function ScrollTop() {
   const trigger = useScrollTrigger({
+    //When set to true, it disables the delay, so the trigger responds instantly when the scroll crosses the threshold (without waiting).
     disableHysteresis: true,
     threshold: 100,
+    //ScrollTop is meant to render nothing or some element that helps scroll the page to the top.
   });
 
   const handleClick = () => {
@@ -64,12 +66,17 @@ function ScrollTop() {
 }
 
 const Navbar = () => {
+  //When user clicks Login, setShowModal(true) makes showModal = true.
+
+//So the <LoginModal /> component will now be shown (like a popup login box).
   const [showModal, setShowModal] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [hoveredButton, setHoveredButton] = useState(null);
+   //What It Does: Controls if the mobile side drawer (hamburger menu) is open.
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const theme = useTheme();
+  //On a phone or tablet (screen smaller than medium), show hamburger menu.
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
 
@@ -77,6 +84,7 @@ const Navbar = () => {
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
+      //If you've scrolled more than 10 pixels, it sets isScrolled = true, else false.
       setIsScrolled(scrollTop > 10);
     };
 

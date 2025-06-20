@@ -15,7 +15,10 @@ import { motion } from "framer-motion";
 
 const Feedback = () => {
   const form = useRef();
+  //useRef() creates a reference to the HTML <form> element.
+  //Later, we’ll pass this ref to emailjs.sendForm() so it can read the form’s values.
   const [open, setOpen] = useState(false);
+  //This state variable is typically used to control whether something is open or closed (like a modal, dialog, dropdown, etc.).
   const [errorOpen, setErrorOpen] = useState(false);
 
   const sendEmail = (e) => {

@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
+// animation liabrary
 import { motion } from "framer-motion";
 
 const Contact = () => {
@@ -25,7 +26,7 @@ const Contact = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
+// contact us form submit mail to link
   const handleSubmit = (e) => {
     e.preventDefault();
     const { name, email, education, message } = formData;
