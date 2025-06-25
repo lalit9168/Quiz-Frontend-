@@ -7,6 +7,7 @@ import AttemptQuiz from "./Quiz/AttemptQuiz";
 import CreateGuestQuiz from "./Guest/CreateGuestQuiz";
 import GuestQuizEntry from "./Guest/GuestQuizEntry";
 import GuestAttemptQuiz from "./Guest/GuestAttemptQuiz";
+import QuizSubmissionsChart from "./charts/quizSubmitCharts";
 
 export {
     LoginPage,
@@ -18,4 +19,5 @@ export {
     CreateGuestQuiz,
     GuestQuizEntry,
     GuestAttemptQuiz,
+    QuizSubmissionsChart,
 }

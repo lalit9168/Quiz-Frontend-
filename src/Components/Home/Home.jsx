@@ -89,6 +89,16 @@ function HomePage() {
       bgColor: "rgba(16, 185, 129, 0.1)",
       adminOnly: false,
     },
+    
+    {
+      title: "Quiz Reports",
+      description: "Create quizzes for guests to participate without registration",
+      icon: <GroupAddIcon sx={{ fontSize: 28 }} />,
+      action: handleGuestQuiz,
+      color: "#8b5cf6",
+      bgColor: "rgba(139, 92, 246, 0.1)",
+      adminOnly: true,
+    },
   ];
 
   const filteredCards = role === "admin" 

@@ -657,6 +657,24 @@ function QuizDash() {
                             <Button
                               fullWidth
                               variant="outlined"
+                              startIcon={<VisibilityIcon />}
+                              onClick={() =>
+                                navigate(`/submit-charts/${quiz.quizCode}`)
+                              }
+                              sx={{
+                                color: "#3b82f6",
+                                borderColor: "#bfdbfe",
+                                "&:hover": {
+                                  backgroundColor: "#eff6ff",
+                                  borderColor: "#3b82f6",
+                                },
+                              }}
+                            >
+                              View Charts Report
+                            </Button>
+                            <Button
+                              fullWidth
+                              variant="outlined"
                               startIcon={<DownloadIcon />}
                               onClick={() =>
                                 downloadExcelForQuiz(quiz.quizCode, quiz.title)
@@ -781,11 +799,10 @@ function QuizDash() {
                         background: `conic-gradient(${getScoreColor(
                           selectedQuizScore.score,
                           selectedQuizScore.totalQuestions
-                        )} ${
-                          (selectedQuizScore.score /
+                        )} ${(selectedQuizScore.score /
                             selectedQuizScore.totalQuestions) *
                           360
-                        }deg, #e2e8f0 0deg)`,
+                          }deg, #e2e8f0 0deg)`,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -851,7 +868,7 @@ function QuizDash() {
                       {Math.round(
                         (selectedQuizScore.score /
                           selectedQuizScore.totalQuestions) *
-                          100
+                        100
                       )}
                       %
                     </Typography>

@@ -9,8 +9,10 @@ import {
   CreateGuestQuiz,
   GuestQuizEntry,
   GuestAttemptQuiz,
+  QuizSubmissionsChart,
 } from './Components/exports';
 import AdminSubmissions from './Components/Quiz/AdminSubmissions';
+import QuizAnalyticsDashboard from './Components/charts/quizChart';
 
 // ✅ New pages for landing and static content
 import Hero from './Components/LandingPage/Hero';
@@ -68,6 +70,9 @@ function App() {
         {/* ✅ Static Info Pages */}
         <Route path="/contact" element={<Contact />} />
         <Route path="/feedback" element={<Feedback />} />
+
+        <Route path="/charts" element={<QuizAnalyticsDashboard />} />
+        <Route path="/submit-charts/:quizCode" element={<QuizSubmissionsChart />} />
 
       </Routes>
     </BrowserRouter>

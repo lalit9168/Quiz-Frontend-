@@ -163,20 +163,20 @@ const submitQuiz = async () => {
     }
 
     // Step 4: Send email with base64 PDF in body
-    await emailjs.send(
-      "service_xsl27oo",
-      "template_g8c6hfe",
-      {
-        to_email: userEmail,
-        from_name: userName,
-        title: quiz.title,
-        message: `You scored ${points}/${quiz.questions.length} in the quiz: ${quiz.title}`,
-        pdf_base64: pdfBase64, // Only the base64 part (no prefix)
-      },
-      "amqojsEuLsl4OgVm1"
-    );
+    // await emailjs.send(
+    //   "service_xsl27oo",
+    //   "template_g8c6hfe",
+    //   {
+    //     to_email: userEmail,
+    //     from_name: userName,
+    //     title: quiz.title,
+    //     message: `You scored ${points}/${quiz.questions.length} in the quiz: ${quiz.title}`,
+    //     pdf_base64: pdfBase64, // Only the base64 part (no prefix)
+    //   },
+    //   "amqojsEuLsl4OgVm1"
+    // );
 
-    alert("Scorecard has been emailed successfully!");
+    // alert("Scorecard has been emailed successfully!");
   } catch (err) {
     console.error("Email failed", err);
     alert("Failed to send scorecard.");
