@@ -35,9 +35,7 @@ function LoginPage() {
   };
 
   const handleSubmit = async () => {
-    const url = isRegister
-      ? "api/register"
-      : "api/login";
+    const url = isRegister ? "api/register" : "api/login";
 
     try {
       const res = await api.post(url, formData);
@@ -63,7 +61,8 @@ function LoginPage() {
         alignItems: "center",
         position: "relative",
         overflow: "hidden",
-        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 100%)",
+        background:
+          "linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 100%)",
       }}
     >
       {/* Enhanced Background Pattern */}
@@ -109,8 +108,11 @@ function LoginPage() {
               height: hex.size,
               position: "absolute",
               ...hex,
-              background: `linear-gradient(135deg, rgba(16, 185, 129, ${hex.opacity}), rgba(59, 130, 246, ${hex.opacity * 0.8}))`,
-              clipPath: "polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)",
+              background: `linear-gradient(135deg, rgba(16, 185, 129, ${
+                hex.opacity
+              }), rgba(59, 130, 246, ${hex.opacity * 0.8}))`,
+              clipPath:
+                "polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)",
               animation: `rotate-${i} ${12 + i * 2}s linear infinite`,
               "@keyframes rotate-0": {
                 "0%": { transform: "rotate(0deg) scale(1)" },
@@ -199,11 +201,11 @@ function LoginPage() {
             >
               <StarsIcon fontSize="large" />
             </IconButton>
-            <Typography 
-              variant="h5" 
-              mt={2} 
+            <Typography
+              variant="h5"
+              mt={2}
               fontWeight="bold"
-              sx={{ 
+              sx={{
                 color: "#0f172a",
                 background: "linear-gradient(135deg, #059669 0%, #2563eb 100%)",
                 WebkitBackgroundClip: "text",
@@ -215,118 +217,126 @@ function LoginPage() {
             </Typography>
           </Box>
 
-          <TextField
-            fullWidth
-            label="Email"
-            variant="filled"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            sx={{
-              mb: 2,
-              "& .MuiFilledInput-root": {
-                backgroundColor: "rgba(16, 185, 129, 0.06)",
-                borderRadius: 2,
-                border: "1px solid rgba(16, 185, 129, 0.15)",
-                "&:hover": {
-                  backgroundColor: "rgba(16, 185, 129, 0.08)",
-                  borderColor: "rgba(16, 185, 129, 0.25)",
-                },
-                "&.Mui-focused": {
-                  backgroundColor: "rgba(16, 185, 129, 0.08)",
-                  borderColor: "#10b981",
-                },
-              },
-              "& .MuiInputLabel-root": {
-                color: "#64748b",
-                "&.Mui-focused": {
-                  color: "#059669",
-                },
-              },
-              "& .MuiFilledInput-input": {
-                color: "#0f172a",
-              },
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
             }}
-          />
-          <TextField
-            fullWidth
-            label="Password"
-            type="password"
-            variant="filled"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            sx={{
-              mb: 2,
-              "& .MuiFilledInput-root": {
-                backgroundColor: "rgba(16, 185, 129, 0.06)",
-                borderRadius: 2,
-                border: "1px solid rgba(16, 185, 129, 0.15)",
-                "&:hover": {
-                  backgroundColor: "rgba(16, 185, 129, 0.08)",
-                  borderColor: "rgba(16, 185, 129, 0.25)",
-                },
-                "&.Mui-focused": {
-                  backgroundColor: "rgba(16, 185, 129, 0.08)",
-                  borderColor: "#10b981",
-                },
-              },
-              "& .MuiInputLabel-root": {
-                color: "#64748b",
-                "&.Mui-focused": {
-                  color: "#059669",
-                },
-              },
-              "& .MuiFilledInput-input": {
-                color: "#0f172a",
-              },
-            }}
-          />
-
-          {/* {isRegister && (
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={formData.role === "admin"}
-                  onChange={handleChange}
-                  name="role"
-                  sx={{ 
-                    color: "#10b981",
-                    "&.Mui-checked": {
-                      color: "#10b981",
-                    },
-                  }}
-                />
-              }
-              label="Register as Admin"
-              sx={{ color: "#0f172a", mb: 2 }}
-            />
-          )} */}
-
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={handleSubmit}
-            sx={{
-              background: "linear-gradient(135deg, #10b981, #3b82f6)",
-              color: "#fff",
-              fontWeight: "bold",
-              py: 1.5,
-              borderRadius: 2,
-              boxShadow: "0 10px 30px rgba(16, 185, 129, 0.3)",
-              mb: 2,
-              fontSize: "1.1rem",
-              textTransform: "none",
-              "&:hover": {
-                background: "linear-gradient(135deg, #059669, #2563eb)",
-                transform: "translateY(-2px)",
-                boxShadow: "0 15px 40px rgba(16, 185, 129, 0.4)",
-              },
-              transition: "all 0.3s ease",
-            }}
+            autoComplete="off"
           >
-            {isRegister ? "Register" : "Log In"}
-          </Button>
+            <TextField
+              fullWidth
+              label="Email"
+              variant="filled"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              sx={{
+                mb: 2,
+                "& .MuiFilledInput-root": {
+                  backgroundColor: "rgba(16, 185, 129, 0.06)",
+                  borderRadius: 2,
+                  border: "1px solid rgba(16, 185, 129, 0.15)",
+                  "&:hover": {
+                    backgroundColor: "rgba(16, 185, 129, 0.08)",
+                    borderColor: "rgba(16, 185, 129, 0.25)",
+                  },
+                  "&.Mui-focused": {
+                    backgroundColor: "rgba(16, 185, 129, 0.08)",
+                    borderColor: "#10b981",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#64748b",
+                  "&.Mui-focused": {
+                    color: "#059669",
+                  },
+                },
+                "& .MuiFilledInput-input": {
+                  color: "#0f172a",
+                },
+              }}
+            />
+            <TextField
+              fullWidth
+              label="Password"
+              type="password"
+              variant="filled"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              sx={{
+                mb: 2,
+                "& .MuiFilledInput-root": {
+                  backgroundColor: "rgba(16, 185, 129, 0.06)",
+                  borderRadius: 2,
+                  border: "1px solid rgba(16, 185, 129, 0.15)",
+                  "&:hover": {
+                    backgroundColor: "rgba(16, 185, 129, 0.08)",
+                    borderColor: "rgba(16, 185, 129, 0.25)",
+                  },
+                  "&.Mui-focused": {
+                    backgroundColor: "rgba(16, 185, 129, 0.08)",
+                    borderColor: "#10b981",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#64748b",
+                  "&.Mui-focused": {
+                    color: "#059669",
+                  },
+                },
+                "& .MuiFilledInput-input": {
+                  color: "#0f172a",
+                },
+              }}
+            />
+
+            {/* {isRegister && (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.role === "admin"}
+                    onChange={handleChange}
+                    name="role"
+                    sx={{ 
+                      color: "#10b981",
+                      "&.Mui-checked": {
+                        color: "#10b981",
+                      },
+                    }}
+                  />
+                }
+                label="Register as Admin"
+                sx={{ color: "#0f172a", mb: 2 }}
+              />
+            )} */}
+
+            <Button
+              fullWidth
+              variant="contained"
+              type="submit"
+              sx={{
+                background: "linear-gradient(135deg, #10b981, #3b82f6)",
+                color: "#fff",
+                fontWeight: "bold",
+                py: 1.5,
+                borderRadius: 2,
+                boxShadow: "0 10px 30px rgba(16, 185, 129, 0.3)",
+                mb: 2,
+                fontSize: "1.1rem",
+                textTransform: "none",
+                "&:hover": {
+                  background: "linear-gradient(135deg, #059669, #2563eb)",
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 15px 40px rgba(16, 185, 129, 0.4)",
+                },
+                transition: "all 0.3s ease",
+              }}
+            >
+              {isRegister ? "Register" : "Log In"}
+            </Button>
+          </form>
 
           <Typography align="center" variant="body2" sx={{ color: "#64748b" }}>
             {isRegister ? (
@@ -334,8 +344,8 @@ function LoginPage() {
                 Already have an account?{" "}
                 <Button
                   onClick={() => setIsRegister(false)}
-                  sx={{ 
-                    color: "#10b981", 
+                  sx={{
+                    color: "#10b981",
                     textTransform: "none",
                     fontWeight: 600,
                     "&:hover": {
@@ -351,8 +361,8 @@ function LoginPage() {
                 Don't have an account?{" "}
                 <Button
                   onClick={() => setIsRegister(true)}
-                  sx={{ 
-                    color: "#3b82f6", 
+                  sx={{
+                    color: "#3b82f6",
                     textTransform: "none",
                     fontWeight: 600,
                     "&:hover": {

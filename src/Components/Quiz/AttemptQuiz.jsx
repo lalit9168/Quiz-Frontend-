@@ -33,12 +33,10 @@ function AttemptQuiz() {
     const fetchQuiz = async () => {
       try {
         if (!token) {
-        alert("You must Login to attempt the quiz.");
-        return;
-      }
-        const res = await api.get(
-          `/api/quizzes/code/${code}`
-        );
+          alert("You must Login to attempt the quiz.");
+          return;
+        }
+        const res = await api.get(`/api/quizzes/code/${code}`);
         const quizData = res.data;
         setQuiz(quizData);
         //token;
@@ -49,7 +47,7 @@ function AttemptQuiz() {
         const userSubmission = quizData.submissions?.find(
           (s) => s.email === userEmail
         );
-//already attempt logic 
+        //already attempt logic
         if (userSubmission) {
           setAlreadyAttempted(true);
           setScore(userSubmission.score);
@@ -64,7 +62,7 @@ function AttemptQuiz() {
         // Normal attempt logic
         const duration = quizData.duration; // minutes
         const startKey = `quizStartTime_${code}`;
-       // Creates a unique key to store start time in localStorage.
+        // Creates a unique key to store start time in localStorage.
         let startTime = localStorage.getItem(startKey);
 
         if (!startTime) {
@@ -81,7 +79,7 @@ function AttemptQuiz() {
         const interval = setInterval(() => {
           const now = new Date();
           const diff = endTime - now;
-//Stop the interval.
+          //Stop the interval.
           if (diff <= 0) {
             clearInterval(interval);
             setTimeLeft(0);
@@ -89,7 +87,6 @@ function AttemptQuiz() {
               submittedRef.current = true;
               handleAutoSubmit();
               //Calls handleAutoSubmit() to auto-submit the quiz when time ends.
-              
             }
           } else {
             setTimeLeft(diff);
@@ -105,11 +102,11 @@ function AttemptQuiz() {
     fetchQuiz();
     return () => clearInterval(timerRef.current);
   }, [code, token]);
-/// to move another quation logic 
+  /// to move another quation logic
   const handleOptionChange = (e) => {
     setAnswers({ ...answers, [current]: e.target.value });
   };
-// calculate score logix
+  // calculate score logix
   const calculateScore = () => {
     let points = 0;
     const selectedAnswers = [];
@@ -129,60 +126,59 @@ function AttemptQuiz() {
     return { points, selectedAnswers };
   };
 
- 
-// submit quiz logic 
-const submitQuiz = async () => {
-  const { points, selectedAnswers } = calculateScore();
-  setScore(points);
+  // submit quiz logic
+  const submitQuiz = async () => {
+    const { points, selectedAnswers } = calculateScore();
+    setScore(points);
 
-  try {
-    // Step 1: Submit to backend
-    await api.post(`/api/quizzes/submit/${code}`, {
-      token,
-      score: points,
-      selectedAnswers,
-    });
+    try {
+      // Step 1: Submit to backend
+      await api.post(`/api/quizzes/submit/${code}`, {
+        token,
+        score: points,
+        selectedAnswers,
+      });
 
-    clearInterval(timerRef.current);
-    localStorage.removeItem(`quizStartTime_${code}`);
-    setTimeLeft(null);
+      clearInterval(timerRef.current);
+      localStorage.removeItem(`quizStartTime_${code}`);
+      setTimeLeft(null);
 
-    // Step 2: Generate PDF
-    const pdfDoc = new jsPDF();
-    downloadPDF(pdfDoc); // Fill in content
-    const pdfBase64 = pdfDoc.output("datauristring").split(",")[1]; // Remove prefix
+      // Step 2: Generate PDF
+      const pdfDoc = new jsPDF();
+      downloadPDF(pdfDoc); // Fill in content
+      const pdfBase64 = pdfDoc.output("datauristring").split(",")[1]; // Remove prefix
 
-    // Step 3: Get user details
-    const decodedToken = JSON.parse(atob(token.split(".")[1]));
-    const userEmail = decodedToken?.email;
-    const userName = decodedToken?.name || "User";
+      // Step 3: Get user details
+      const decodedToken = JSON.parse(atob(token.split(".")[1]));
+      const userEmail = decodedToken?.email;
+      const userName = decodedToken?.name || "User";
 
-    if (!userEmail || userEmail.trim() === "") {
-      alert("Email address not found. Cannot send scorecard.");
-      return;
+      if (!userEmail || userEmail.trim() === "") {
+        alert("Email address not found. Cannot send scorecard.");
+        return;
+      }
+
+      // Step 4: Send email with base64 PDF in body
+      await emailjs.send(
+        "service_xsl27oo",
+        "template_g8c6hfe",
+        {
+          to_email: userEmail,
+          from_name: userName,
+          title: quiz.title,
+          message: `You scored ${points}/${quiz.questions.length} in the quiz: ${quiz.title}`,
+          pdf_base64: pdfBase64, // Only the base64 part (no prefix)
+        },
+        "amqojsEuLsl4OgVm1"
+      );
+
+      alert("Scorecard has been emailed successfully!");
+    } catch (err) {
+      console.error("Email failed", err);
+      alert("Failed to send scorecard.");
     }
-
-    // Step 4: Send email with base64 PDF in body
-    // await emailjs.send(
-    //   "service_xsl27oo",
-    //   "template_g8c6hfe",
-    //   {
-    //     to_email: userEmail,
-    //     from_name: userName,
-    //     title: quiz.title,
-    //     message: `You scored ${points}/${quiz.questions.length} in the quiz: ${quiz.title}`,
-    //     pdf_base64: pdfBase64, // Only the base64 part (no prefix)
-    //   },
-    //   "amqojsEuLsl4OgVm1"
-    // );
-
-    // alert("Scorecard has been emailed successfully!");
-  } catch (err) {
-    console.error("Email failed", err);
-    alert("Failed to send scorecard.");
-  }
-};
-// handle test  submit  automatic when time ends
+  };
+  // handle test  submit  automatic when time ends
   const handleAutoSubmit = () => {
     if (!submittedRef.current) {
       submittedRef.current = true;
@@ -206,7 +202,7 @@ const submitQuiz = async () => {
         });
     }
   };
-//next question  move logic using next button
+  //next question  move logic using next button
   const handleNext = () => {
     if (current < quiz.questions.length - 1) {
       setCurrent(current + 1);
@@ -229,188 +225,200 @@ const submitQuiz = async () => {
   };
 
   const downloadPDF = () => {
-  const decodedToken = JSON.parse(atob(token.split(".")[1]));
-  const name = decodedToken.name || "User";
-  const email = decodedToken.email;
+    const decodedToken = JSON.parse(atob(token.split(".")[1]));
+    const name = decodedToken.name || "User";
+    const email = decodedToken.email;
 
-  const doc = new jsPDF();
-  
-  // Set up colors
-  const primaryColor = [41, 128, 185]; // Professional blue
-  const successColor = [39, 174, 96]; // Green
-  const errorColor = [231, 76, 60]; // Red
-  const grayColor = [149, 165, 166]; // Light gray
-  const darkColor = [44, 62, 80]; // Dark blue-gray
+    const doc = new jsPDF();
 
-  // Header Background
-  doc.setFillColor(...primaryColor);
-  doc.rect(0, 0, 210, 35, 'F');
+    // Set up colors
+    const primaryColor = [41, 128, 185]; // Professional blue
+    const successColor = [39, 174, 96]; // Green
+    const errorColor = [231, 76, 60]; // Red
+    const grayColor = [149, 165, 166]; // Light gray
+    const darkColor = [44, 62, 80]; // Dark blue-gray
 
-  // App Logo/Title
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(24);
-  doc.setFont("helvetica", "bold");
-  doc.text("QuizApplication", 105, 15, null, null, "center");
-  
-  doc.setFontSize(14);
-  doc.setFont("helvetica", "normal");
-  doc.text("Performance Score Card", 105, 25, null, null, "center");
+    // Header Background
+    doc.setFillColor(...primaryColor);
+    doc.rect(0, 0, 210, 35, "F");
 
-  // Reset text color for content
-  doc.setTextColor(...darkColor);
-  
-  // User Information Section
-  doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.text("Student Information", 15, 50);
-  
-  // Draw a subtle line under section header
-  doc.setDrawColor(...grayColor);
-  doc.setLineWidth(0.5);
-  doc.line(15, 52, 195, 52);
+    // App Logo/Title
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.text("QuizApplication", 105, 15, null, null, "center");
 
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "normal");
-  doc.text(`Name: ${name}`, 20, 62);
-  doc.text(`Email: ${email}`, 20, 70);
-  doc.text(`Quiz Title: ${quiz.title}`, 20, 78);
-  
-  // Score Section with visual indicator
-  const percentage = Math.round((score / quiz.questions.length) * 100);
-  let scoreColor = errorColor;
-  let scoreLabel = "Needs Improvement";
-  
-  if (percentage >= 80) {
-    scoreColor = successColor;
-    scoreLabel = "Excellent";
-  } else if (percentage >= 60) {
-    scoreColor = [243, 156, 18]; // Orange
-    scoreLabel = "Good";
-  }
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.text("Performance Score Card", 105, 25, null, null, "center");
 
-  doc.setFont("helvetica", "bold");
-  doc.text("Final Score:", 20, 90);
-  
-  doc.setTextColor(...scoreColor);
-  doc.setFontSize(14);
-  doc.text(`${score} / ${quiz.questions.length} (${percentage}%)`, 70, 90);
-  
-  doc.setFontSize(10);
-  doc.text(`Performance: ${scoreLabel}`, 70, 98);
+    // Reset text color for content
+    doc.setTextColor(...darkColor);
 
-  // Reset color for table
-  doc.setTextColor(...darkColor);
+    // User Information Section
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Student Information", 15, 50);
 
-  // Detailed Results Section
-  doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.text("Detailed Results", 15, 115);
-  
-  doc.setDrawColor(...grayColor);
-  doc.line(15, 117, 195, 117);
+    // Draw a subtle line under section header
+    doc.setDrawColor(...grayColor);
+    doc.setLineWidth(0.5);
+    doc.line(15, 52, 195, 52);
 
-  // Prepare table data with enhanced formatting
-  const tableData = quiz.questions.map((q, idx) => {
-    const selected = answers[idx] || "Not answered";
-    const correct = q.correctAnswer;
-    const isCorrect = selected === correct;
-    
-    // Truncate long questions for better display
-    const questionText = q.questionText.length > 60 
-      ? q.questionText.substring(0, 60) + "..." 
-      : q.questionText;
-    
-    return [
-      idx + 1,
-      questionText,
-      selected,
-      correct,
-      isCorrect ? "Correct" : "Wrong"
-    ];
-  });
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Name: ${name}`, 20, 62);
+    doc.text(`Email: ${email}`, 20, 70);
+    doc.text(`Quiz Title: ${quiz.title}`, 20, 78);
 
-  // Enhanced table with custom styling
-  autoTable(doc, {
-    startY: 125,
-    head: [["#", "Question", "Your Answer", "Correct Answer", "Status"]],
-    body: tableData,
-    theme: 'striped',
-    headStyles: {
-      fillColor: primaryColor,
-      textColor: [255, 255, 255],
-      fontStyle: 'bold',
-      fontSize: 10,
-      align: 'center'
-    },
-    bodyStyles: {
-      fontSize: 9,
-      textColor: darkColor
-    },
-    columnStyles: {
-      0: { halign: 'center', cellWidth: 15 },
-      1: { cellWidth: 70 },
-      2: { cellWidth: 40 },
-      3: { cellWidth: 40 },
-      4: { 
-        halign: 'center', 
-        cellWidth: 15,
-        textColor: (rowIndex) => {
-          const isCorrect = tableData[rowIndex][4].includes("✓");
-          return isCorrect ? successColor : errorColor;
-        }
-      }
-    },
-    alternateRowStyles: {
-      fillColor: [248, 249, 250]
-    },
-    margin: { left: 18, right: 20 },
-    didDrawCell: (data) => {
-      // Add custom styling for status column
-      if (data.column.index === 4) {
-        const isCorrect = data.cell.text[0].includes("✓");
-        doc.setTextColor(...(isCorrect ? successColor : errorColor));
-        doc.setFont("helvetica", "bold");
-      }
+    // Score Section with visual indicator
+    const percentage = Math.round((score / quiz.questions.length) * 100);
+    let scoreColor = errorColor;
+    let scoreLabel = "Needs Improvement";
+
+    if (percentage >= 80) {
+      scoreColor = successColor;
+      scoreLabel = "Excellent";
+    } else if (percentage >= 60) {
+      scoreColor = [243, 156, 18]; // Orange
+      scoreLabel = "Good";
     }
-  });
 
-  // Footer
-  const finalY = doc.lastAutoTable.finalY + 20;
-  
-  // Performance summary box
-  doc.setFillColor(248, 249, 250);
-  doc.rect(15, finalY, 180, 25, 'F');
-  
-  doc.setDrawColor(...grayColor);
-  doc.rect(15, finalY, 180, 25, 'S');
-  
-  doc.setTextColor(...darkColor);
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "bold");
-  doc.text("Performance Summary:", 20, finalY + 8);
-  
-  doc.setFont("helvetica", "normal");
-  const correctAnswers = tableData.filter(row => row[4].includes("✓")).length;
-  const wrongAnswers = quiz.questions.length - correctAnswers;
-  
-  doc.text(`Correct Answers: ${correctAnswers}`, 20, finalY + 16);
-  doc.text(`Wrong Answers: ${wrongAnswers}`, 80, finalY + 16);
-  doc.text(`Accuracy: ${percentage}%`, 140, finalY + 16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Final Score:", 20, 90);
 
-  // Generated timestamp
-  doc.setFontSize(8);
-  doc.setTextColor(...grayColor);
-  const timestamp = new Date().toLocaleString();
-  doc.text(`Generated on: ${timestamp}`, 15, finalY + 35);
-  doc.text("Powered by QuizApplication", 105, finalY + 35, null, null, "center");
+    doc.setTextColor(...scoreColor);
+    doc.setFontSize(14);
+    doc.text(`${score} / ${quiz.questions.length} (${percentage}%)`, 70, 90);
 
-  // Save with enhanced filename
-  const sanitizedQuizTitle = quiz.title.replace(/[^a-z0-9]/gi, '_');
-  const sanitizedName = name.replace(/[^a-z0-9]/gi, '_');
-  const dateStr = new Date().toISOString().split('T')[0];
-  
-  doc.save(`QuizApp_ScoreCard_${sanitizedQuizTitle}_${sanitizedName}_${dateStr}.pdf`);
-};
+    doc.setFontSize(10);
+    doc.text(`Performance: ${scoreLabel}`, 70, 98);
+
+    // Reset color for table
+    doc.setTextColor(...darkColor);
+
+    // Detailed Results Section
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Detailed Results", 15, 115);
+
+    doc.setDrawColor(...grayColor);
+    doc.line(15, 117, 195, 117);
+
+    // Prepare table data with enhanced formatting
+    const tableData = quiz.questions.map((q, idx) => {
+      const selected = answers[idx] || "Not answered";
+      const correct = q.correctAnswer;
+      const isCorrect = selected === correct;
+
+      // Truncate long questions for better display
+      const questionText =
+        q.questionText.length > 60
+          ? q.questionText.substring(0, 60) + "..."
+          : q.questionText;
+
+      return [
+        idx + 1,
+        questionText,
+        selected,
+        correct,
+        isCorrect ? "Correct" : "Wrong",
+      ];
+    });
+
+    // Enhanced table with custom styling
+    autoTable(doc, {
+      startY: 125,
+      head: [["#", "Question", "Your Answer", "Correct Answer", "Status"]],
+      body: tableData,
+      theme: "striped",
+      headStyles: {
+        fillColor: primaryColor,
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+        fontSize: 10,
+        align: "center",
+      },
+      bodyStyles: {
+        fontSize: 9,
+        textColor: darkColor,
+      },
+      columnStyles: {
+        0: { halign: "center", cellWidth: 15 },
+        1: { cellWidth: 70 },
+        2: { cellWidth: 40 },
+        3: { cellWidth: 40 },
+        4: {
+          halign: "center",
+          cellWidth: 15,
+          textColor: (rowIndex) => {
+            const isCorrect = tableData[rowIndex][4].includes("✓");
+            return isCorrect ? successColor : errorColor;
+          },
+        },
+      },
+      alternateRowStyles: {
+        fillColor: [248, 249, 250],
+      },
+      margin: { left: 18, right: 20 },
+      didDrawCell: (data) => {
+        // Add custom styling for status column
+        if (data.column.index === 4) {
+          const isCorrect = data.cell.text[0].includes("✓");
+          doc.setTextColor(...(isCorrect ? successColor : errorColor));
+          doc.setFont("helvetica", "bold");
+        }
+      },
+    });
+
+    // Footer
+    const finalY = doc.lastAutoTable.finalY + 20;
+
+    // Performance summary box
+    doc.setFillColor(248, 249, 250);
+    doc.rect(15, finalY, 180, 25, "F");
+
+    doc.setDrawColor(...grayColor);
+    doc.rect(15, finalY, 180, 25, "S");
+
+    doc.setTextColor(...darkColor);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text("Performance Summary:", 20, finalY + 8);
+
+    doc.setFont("helvetica", "normal");
+    const correctAnswers = tableData.filter((row) =>
+      row[4].includes("✓")
+    ).length;
+    const wrongAnswers = quiz.questions.length - correctAnswers;
+
+    doc.text(`Correct Answers: ${correctAnswers}`, 20, finalY + 16);
+    doc.text(`Wrong Answers: ${wrongAnswers}`, 80, finalY + 16);
+    doc.text(`Accuracy: ${percentage}%`, 140, finalY + 16);
+
+    // Generated timestamp
+    doc.setFontSize(8);
+    doc.setTextColor(...grayColor);
+    const timestamp = new Date().toLocaleString();
+    doc.text(`Generated on: ${timestamp}`, 15, finalY + 35);
+    doc.text(
+      "Powered by QuizApplication",
+      105,
+      finalY + 35,
+      null,
+      null,
+      "center"
+    );
+
+    // Save with enhanced filename
+    const sanitizedQuizTitle = quiz.title.replace(/[^a-z0-9]/gi, "_");
+    const sanitizedName = name.replace(/[^a-z0-9]/gi, "_");
+    const dateStr = new Date().toISOString().split("T")[0];
+
+    doc.save(
+      `QuizApp_ScoreCard_${sanitizedQuizTitle}_${sanitizedName}_${dateStr}.pdf`
+    );
+  };
 
   if (!quiz) return <Typography sx={{ p: 3 }}>Loading quiz...</Typography>;
 

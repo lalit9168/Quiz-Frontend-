@@ -1,6 +1,6 @@
-import { useParams } from 'react-router-dom';
-import { useEffect, useState, useMemo } from 'react';
-import axios from 'axios';
+import { useParams } from "react-router-dom";
+import { useEffect, useState, useMemo } from "react";
+import axios from "axios";
 import {
   Box,
   Typography,
@@ -15,10 +15,10 @@ import {
   Paper,
   Slide,
   Divider,
-} from '@mui/material';
+} from "@mui/material";
 
-import CelebrationIcon from '@mui/icons-material/EmojiEvents';
-import QuizIcon from '@mui/icons-material/Quiz';
+import CelebrationIcon from "@mui/icons-material/EmojiEvents";
+import QuizIcon from "@mui/icons-material/Quiz";
 import api from "../api";
 
 function GuestAttemptQuiz() {
@@ -27,7 +27,7 @@ function GuestAttemptQuiz() {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState({});
   const [score, setScore] = useState(null);
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [nameEntered, setNameEntered] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -37,7 +37,7 @@ function GuestAttemptQuiz() {
         const res = await api.get(`/api/guest-quizzes/code/${quizCode}`);
         setQuiz(res.data);
       } catch (error) {
-        alert('Quiz not found');
+        alert("Quiz not found");
       } finally {
         setLoading(false);
       }
@@ -79,7 +79,7 @@ function GuestAttemptQuiz() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 4, textAlign: 'center' }}>
+      <Box sx={{ p: 4, textAlign: "center" }}>
         <Typography variant="h6">Loading quiz...</Typography>
       </Box>
     );
@@ -87,7 +87,7 @@ function GuestAttemptQuiz() {
 
   if (!quiz) {
     return (
-      <Box sx={{ p: 4, textAlign: 'center' }}>
+      <Box sx={{ p: 4, textAlign: "center" }}>
         <Typography variant="h6">No quiz found</Typography>
       </Box>
     );
@@ -96,7 +96,10 @@ function GuestAttemptQuiz() {
   if (score !== null) {
     return (
       <Slide direction="up" in={true} mountOnEnter unmountOnExit>
-        <Paper elevation={4} sx={{ p: 5, m: 4, textAlign: 'center', borderRadius: 4 }}>
+        <Paper
+          elevation={4}
+          sx={{ p: 5, m: 4, textAlign: "center", borderRadius: 4 }}
+        >
           <CelebrationIcon fontSize="large" color="warning" />
           <Typography variant="h4" mt={2}>
             Great job, {name}!
@@ -110,31 +113,40 @@ function GuestAttemptQuiz() {
   }
 
   return (
-    <Box sx={{ p: 4, maxWidth: 700, mx: 'auto' }}>
+    <Box sx={{ p: 4, maxWidth: 700, mx: "auto" }}>
       {!nameEntered ? (
         <Fade in={!nameEntered}>
           <Card elevation={6}>
             <CardContent>
-              <Box sx={{ textAlign: 'center', mb: 3 }}>
+              <Box sx={{ textAlign: "center", mb: 3 }}>
                 <QuizIcon color="primary" sx={{ fontSize: 40 }} />
-                <Typography variant="h5" mt={1}>Enter Your Name to Start</Typography>
+                <Typography variant="h5" mt={1}>
+                  Enter Your Name to Start
+                </Typography>
               </Box>
-              <TextField
-                fullWidth
-                variant="outlined"
-                label="Your Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-              <Button
-                fullWidth
-                sx={{ mt: 3 }}
-                size="large"
-                variant="contained"
-                onClick={() => name.trim() && setNameEntered(true)}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (name.trim()) setNameEntered(true);
+                }}
               >
-                Start Quiz
-              </Button>
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  label="Your Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <Button
+                  fullWidth
+                  sx={{ mt: 3 }}
+                  size="large"
+                  variant="contained"
+                  type="submit"
+                >
+                  Start Quiz
+                </Button>
+              </form>
             </CardContent>
           </Card>
         </Fade>
@@ -147,7 +159,7 @@ function GuestAttemptQuiz() {
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <RadioGroup
-                value={answers[current] || ''}
+                value={answers[current] || ""}
                 onChange={handleAnswer}
               >
                 {quiz.questions[current].options.map((opt, idx) => (
@@ -166,7 +178,7 @@ function GuestAttemptQuiz() {
                 disabled={!answers[current]}
                 onClick={handleNext}
               >
-                {isLastQuestion ? 'Submit' : 'Next'}
+                {isLastQuestion ? "Submit" : "Next"}
               </Button>
             </CardContent>
           </Card>

@@ -24,6 +24,10 @@ import {
   AppBar,
   Toolbar,
   Avatar,
+  TextField,
+  Select,
+  MenuItem,
+  Pagination,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -40,7 +44,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import StarIcon from "@mui/icons-material/Star";
 import api from "../api";
-//admin
+
 function QuizDash() {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +57,14 @@ function QuizDash() {
   const [scoreModalOpen, setScoreModalOpen] = useState(false);
   const [selectedQuizScore, setSelectedQuizScore] = useState(null);
 
+  // Pagination, filter, sort state
+  const [page, setPage] = useState(1);
+  const [limit] = useState(8); // quizzes per page
+  const [totalPages, setTotalPages] = useState(1);
+  const [filterTitle, setFilterTitle] = useState("");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [order, setOrder] = useState("desc");
+
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -62,8 +74,8 @@ function QuizDash() {
 
     if (!token) {
       alert("You must login to view this page.");
-      navigate("/"); // ⬅ Redirects to home
-      return null; // ⬅ Prevent further rendering
+      navigate("/");
+      return null;
     }
 
     if (token) {
@@ -71,19 +83,28 @@ function QuizDash() {
       if (decoded.role === "admin") setIsAdmin(true);
       if (decoded.email) setUserEmail(decoded.email);
     }
-  }, []);
-  // admin level ooperation
+  }, [page, filterTitle, sortBy, order]);
+
   const fetchQuizzes = async () => {
+    setLoading(true);
     try {
-      const res = await api.get("api/quizzes/all");
-      setQuizzes(res.data);
+      const params = [];
+      params.push(`page=${page}`);
+      params.push(`limit=${limit}`);
+      if (filterTitle) params.push(`title=${encodeURIComponent(filterTitle)}`);
+      if (sortBy) params.push(`sortBy=${sortBy}`);
+      if (order) params.push(`order=${order}`);
+
+      const res = await api.get(`api/quizzes/all?${params.join("&")}`);
+      setQuizzes(res.data.data || res.data);
+      setTotalPages(res.data.totalPages || 1);
     } catch (error) {
       console.error("Error fetching quizzes", error);
     } finally {
       setLoading(false);
     }
   };
-  //for user level
+
   const attemptedQuiz = async () => {
     try {
       const res = await api.get("api/quizzes/attempted-quiz");
@@ -93,25 +114,6 @@ function QuizDash() {
     }
   };
 
-  // const fetchUserScore = async (quizCode) => {
-  //   try {
-  //     const res = await axios.get(
-  //       `http://localhost:5001/api/quizzes/user-score/${quizCode}`,
-  //       { headers: { Authorization: `Bearer ${token}` } }
-  //     );
-  //     const quiz = quizzes.find(q => q.quizCode === quizCode);
-  //     setSelectedQuizScore({
-  //       ...res.data,
-  //       quizTitle: quiz?.title || 'Quiz',
-  //       totalQuestions: quiz?.questions?.length || 0
-  //     });
-  //     setScoreModalOpen(true);
-  //   } catch (err) {
-  //     console.error("Failed to fetch user score", err);
-  //   }
-  // };
-
-  // admin to fetch all submissionas
   const fetchAllSubmissions = async () => {
     try {
       const res = await api.get("api/quizzes/submissions/all", {
@@ -124,7 +126,7 @@ function QuizDash() {
       console.error("Failed to fetch submissions", err);
     }
   };
-  // admin to view single quiz records
+
   const fetchSubmissionsForQuiz = async (quizCode) => {
     try {
       const res = await api.get(`api/quizzes/submissions/${quizCode}`, {
@@ -137,8 +139,6 @@ function QuizDash() {
     }
   };
 
-  //delete for admin
-
   const handleDelete = async (quizCode) => {
     if (!window.confirm("Are you sure you want to delete this quiz?")) return;
     try {
@@ -150,7 +150,7 @@ function QuizDash() {
       console.error("Failed to delete quiz", err);
     }
   };
-  //download excel for admin only view all data
+
   const downloadExcelForQuiz = async (quizCode, quizTitle) => {
     try {
       const res = await api.get(`api/quizzes/submissions/${quizCode}`, {
@@ -177,7 +177,7 @@ function QuizDash() {
       console.error("Error downloading Excel", err);
     }
   };
-  // logput function to admin
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
@@ -189,7 +189,6 @@ function QuizDash() {
     return quiz?.attemptedUsers.includes(userEmail);
   };
 
-  // download pdf with this colour
   const getScoreColor = (score, total) => {
     const percentage = (score / total) * 100;
     if (percentage >= 80) return "#4ade80";
@@ -206,9 +205,61 @@ function QuizDash() {
     return "Keep Trying!";
   };
 
+  const renderControls = () => (
+    <Box 
+      mb={3} 
+      display="flex" 
+      flexWrap="wrap" 
+      gap={2} 
+      alignItems="center"
+      sx={{
+        p: 2,
+        backgroundColor: '#ffffff',
+        borderRadius: 2,
+        boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+        border: '1px solid #e2e8f0'
+      }}
+    >
+      <TextField
+        label="Filter by Title"
+        value={filterTitle}
+        onChange={(e) => {
+          setPage(1);
+          setFilterTitle(e.target.value);
+        }}
+        size="small"
+        sx={{ minWidth: 200 }}
+      />
+      <Select
+        value={sortBy}
+        onChange={(e) => setSortBy(e.target.value)}
+        size="small"
+        sx={{ minWidth: 150 }}
+      >
+        <MenuItem value="createdAt">Newest</MenuItem>
+        <MenuItem value="title">Title</MenuItem>
+      </Select>
+      <Select
+        value={order}
+        onChange={(e) => setOrder(e.target.value)}
+        size="small"
+        sx={{ minWidth: 120 }}
+      >
+        <MenuItem value="desc">Desc</MenuItem>
+        <MenuItem value="asc">Asc</MenuItem>
+      </Select>
+      <Pagination
+        count={totalPages}
+        page={page}
+        onChange={(_, value) => setPage(value)}
+        color="primary"
+        sx={{ ml: 'auto' }}
+      />
+    </Box>
+  );
+
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#f1f5f9" }}>
-      {/* Modern Navbar */}
       <AppBar
         position="static"
         elevation={0}
@@ -276,7 +327,8 @@ function QuizDash() {
       <Container maxWidth="xl" sx={{ py: 4 }}>
         <Fade in timeout={1000}>
           <Box>
-            {/* Admin Controls */}
+            {renderControls()}
+
             {isAdmin && (
               <Box mb={4} textAlign="center">
                 <Button
@@ -304,7 +356,6 @@ function QuizDash() {
               </Box>
             )}
 
-            {/* Submissions Display */}
             {showSubmissions && submissionsData.length > 0 && (
               <Box mb={4}>
                 <Typography
@@ -389,7 +440,6 @@ function QuizDash() {
               </Box>
             )}
 
-            {/* Single Quiz Submissions */}
             {singleQuizView && (
               <Paper
                 elevation={0}
@@ -464,7 +514,6 @@ function QuizDash() {
               </Paper>
             )}
 
-            {/* Quiz Cards */}
             {loading ? (
               <Box sx={{ textAlign: "center", py: 8 }}>
                 <Typography variant="h6" color="#64748b">
@@ -576,10 +625,8 @@ function QuizDash() {
                             variant="contained"
                             onClick={() => {
                               if (isAttempted(quiz.quizCode)) {
-                                // Already attempted — just navigate
                                 navigate(`/attempt/${quiz.quizCode}`);
                               } else {
-                                // Show confirmation popup before starting
                                 const confirmStart = window.confirm(
                                   "⚠️ Once you start the quiz, the timer will begin and cannot be stopped.\nDo you want to continue?"
                                 );
@@ -702,7 +749,6 @@ function QuizDash() {
         </Fade>
       </Container>
 
-      {/* Score Popup Modal */}
       <Modal
         open={scoreModalOpen}
         onClose={() => setScoreModalOpen(false)}
@@ -738,7 +784,6 @@ function QuizDash() {
                 position: "relative",
               }}
             >
-              {/* Modal Header */}
               <Box
                 sx={{
                   background:
@@ -786,10 +831,8 @@ function QuizDash() {
                 </Typography>
               </Box>
 
-              {/* Modal Content */}
               {selectedQuizScore && (
                 <Box sx={{ p: 4 }}>
-                  {/* Score Display */}
                   <Box sx={{ textAlign: "center", mb: 4 }}>
                     <Box
                       sx={{
@@ -876,7 +919,6 @@ function QuizDash() {
 
                   <Divider sx={{ my: 3 }} />
 
-                  {/* Score Details */}
                   <Box
                     sx={{
                       display: "flex",
@@ -920,7 +962,6 @@ function QuizDash() {
                     </Box>
                   </Box>
 
-                  {/* Action Button */}
                   <Button
                     fullWidth
                     variant="contained"
